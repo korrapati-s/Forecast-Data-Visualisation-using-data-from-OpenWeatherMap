@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <script type="text/javascript" src="/js/chart.js"></script>
+    <script type="text/javascript" src="/js/owm.js"></script>
+
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+    <script src="http://code.highcharts.com/modules/export-data.src.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <title>Weather Forecast REST API</title>
+  </head>
+  <body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <div class="container-fluid">
+      <div class="row" style="max-height:10%;background-color:#aaa;">
+        <h3 class="offset-md-4 text-center">Weather Forecast REST API</h3>
+      </div>
+      <div class="row" style="">
+        <div class="col-md-3 h-100 d-inline-block" style="background-color:black;height:90%">
+            <div class="form-group">
+              <label for="date" style="margin-top:15%;color:red">OpenWeatherMap API (Bonus)</label>
+              <button type="submit" id="owm" class="btn btn-primary">OWM</button>
+
+              <label for="date" style="margin-top:5%;color:red">Forecast Date</label>
+              <input type="text" class="form-control" id="data"  placeholder="YYYYMMDD">
+              <button type="submit" id="forecast" class="btn btn-primary">FORECAST</button>
+            </div>
+            <label for="date" style="margin-top:5%;color:red">Date</label>
+            <input type="text" class="form-control" id="da"  placeholder="YYYYMMDD">
+            <button type="submit" id="get" class="btn btn-primary">GET</button>
+            <button type="submit" id="delete" class="btn btn-primary">DELETE</button><br><br>
+
+
+
+            <div class="form-group">
+              <label for="date" style="margin-top:15%;color:red">Insert Date</label>
+              <input type="text" class="form-control" id="dat"  placeholder="YYYYMMDD">
+              <label for="date" style="margin-top:15%;color:red">TMAX</label>
+              <input type="text" class="form-control" id="max"  placeholder="in Fahrenheit">
+              <label for="date" style="margin-top:15%;color:red">TMIN</label>
+              <input type="text" class="form-control" id="min"  placeholder="in Fahrenheit">
+            </div>
+            <button type="submit" id="insert" class="btn btn-primary">INSERT</button><br><br>
+        </div>
+        <div class="col-md-9">
+          <h4 id="date"></h4><br><h4 id="tmax"></h4><br><h4 id="tmin"></h4>
+          <div class="container">
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      $(document).ready(function() {
+       $("#get").click(function() {
+         var input = $('#da').val();
+         console.log(input);
+         var url = "/historicalget/";
+          $.ajax({
+              url: url,
+              method:'GET',
+              data: {input: input},
+              success: function(result){
+                console.log('Getting Data..');
+                console.log(url);
+                console.log(result.TMAX);
+                  document.getElementById("date").innerHTML = "DATE "+ result.DATE;
+                  document.getElementById("tmax").innerHTML = "TMAX "+ result.TMAX + " F";
+                  document.getElementById("tmin").innerHTML = "TMIN "+ result.TMIN + " F";
+              },
+              error: function(err){
+                console.log(err);
+              }
+
+            });
+         });
+
+//delete
+         $("#delete").click(function() {
+           var input = $('#da').val();
+           console.log(input);
+           var url = "/historicaldel/";
+            $.ajax({
+                url: url,
+                method:'GET',
+                data: {input: input},
+                success: function(result){
+                  console.log('Getting Data..');
+                  console.log(url);
+                  console.log(result);
+                    document.getElementById("date").innerHTML =  result;
+                    document.getElementById("tmax").innerHTML = "";
+                    document.getElementById("tmin").innerHTML = "";
+                },
+                error: function(err){
+                  console.log(err);
+                }
+
+              });
+           });
+
+//insert
+        $("#insert").click(function() {
+          var date = $('#dat').val();
+          var tmax = $('#max').val();
+          var tmin = $('#min').val();
+          // console.log(input);
+          var url = "/insert/";
+           $.ajax({
+               url: url,
+               method:'GET',
+               data: {date: date, tmax: tmax, tmin: tmin},
+               success: function(result){
+                 console.log('Getting Data..');
+                 console.log(url);
+                 console.log(result);
+                   document.getElementById("date").innerHTML =  result;
+                   document.getElementById("tmax").innerHTML = "";
+                   document.getElementById("tmin").innerHTML = "";
+               },
+               error: function(err){
+                 console.log(err);
+               }
+
+             });
+          });
+
+        //FORECAST
+        $("#forecast").click(function() {
+          var data = $('#data').val();
+          // console.log(input);
+          var url = "/forecast/";
+           $.ajax({
+               url: url,
+               method:'GET',
+               data: {data: data},
+               success: function(result){
+                 console.log('Getting Data..');
+                 console.log(url);
+                 console.log(result);
+                  chart(result);
+                   document.getElementById("tmax").innerHTML = "";
+                   document.getElementById("tmin").innerHTML = "";
+                   $('#data').val("") ;
+
+               },
+               error: function(err){
+                 console.log(err);
+               }
+
+             });
+          });
+
+          //open weather map
+          $("#owm").click(function() {
+            var data = $('#data').val();
+            // console.log(input);
+            var url = "/owm/";
+             $.ajax({
+                 url: url,
+                 method:'GET',
+                 success: function(){
+                    owm();
+                     document.getElementById("tmax").innerHTML = "";
+                     document.getElementById("tmin").innerHTML = "";
+                 },
+                 error: function(err){
+                   console.log(err);
+                 }
+
+               });
+            });
+      });
+  </script>
+  </body>
+</html>
